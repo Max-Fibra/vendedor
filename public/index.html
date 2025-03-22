@@ -40,4 +40,18 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
   </body>
+
+  <script>
+    (function() {
+      const pathname = window.location.pathname;
+      const hash = window.location.hash;
+  
+      // Se acessaram sem hash (ex: /dashboard), redireciona para #/dashboard
+      if (!hash && pathname !== "/") {
+        const newPath = "#"+pathname;
+        window.location.replace("/" + newPath);
+      }
+    })();
+  </script>
+  
 </html>
