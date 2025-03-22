@@ -1,0 +1,71 @@
+.container {
+    padding: 16px;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 24px;
+  }
+  
+  .charts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+  
+  .chartBox {
+    flex: 1 1 400px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #00000010;
+  }
+  
+
+  .filtros {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+  
+  .filtroLabel {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  .filtroIcon {
+    font-size: 1.2rem;
+  }
+  
+  .filtroText {
+    margin-right: 5px;
+  }
+  
+  .select {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background-color: white;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  
+  .select:hover,
+  .select:focus {
+    border-color: #4c6ef5;
+  }
+  
+  .contagem {
+    font-size: 0.95rem;
+    color: #2e7d32;
+    font-weight: 500;
+  }
+  

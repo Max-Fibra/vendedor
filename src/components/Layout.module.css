@@ -1,0 +1,90 @@
+/* Layout.module.css */
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  
+  .sidebar {
+    width: 260px;
+    background-color: #111;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+  }
+  
+  .sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 32px;
+  }
+  
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    font-size: 14px;
+  }
+  
+  .nav a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .nav a:hover {
+    color: #4fd1c5;
+  }
+  
+  .logout {
+    margin-top: auto;
+    color: #ff7675;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    transition: color 0.2s ease;
+  }
+  
+  .logout:hover {
+    color: #e74c3c;
+  }
+  
+  .main {
+    flex: 1;
+    background-color: #f7f7f7;
+    padding: 40px;
+    overflow-y: auto;
+  }
+  
+  .header {
+    margin-bottom: 32px;
+  }
+  
+  .header h1 {
+    font-size: 28px;
+    margin: 0 0 8px;
+  }
+  
+  .header p {
+    color: #666;
+    font-size: 14px;
+  }
+
+
+  .timestamp {
+    font-size: 14px;
+    color: #888;
+    margin-left: 12px;
+  }
+  
+  .comissaoTotal {
+    margin-top: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2e7d32; /* verde */
+  }
+  

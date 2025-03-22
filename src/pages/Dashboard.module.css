@@ -1,0 +1,125 @@
+/* Dashboard.module.css */
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px !important;
+  }
+
+  .grid {
+        display: grid;
+        gap: 16px;
+        align-items: start;
+    }
+
+  
+  .cardContent {
+    padding: 20px;
+    font-size: 14px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #00000010;
+  }
+  
+  .highlight {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .emptyText {
+    color: #999;
+    font-style: italic;
+    margin-top: 12px;
+  }
+
+
+  .cardWrapper {
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 0 10px #00000010;
+  }
+  
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 16px;
+    background-color: #f0f0f0;
+    font-weight: bold;
+    transition: background 0.2s;
+    
+  }
+  
+  .cardHeader:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .cardBody {
+    padding: 16px;
+    border-top: 1px solid #ddd;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+    opacity: 1;
+    max-height: 1000px; /* valor grande pra animação */
+  }
+  
+  .cardBodyHidden {
+    padding: 0;
+    border: none;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+  
+  
+  .checkboxGroup {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+
+
+  .filtros {
+    margin-bottom: 1rem;
+  }
+  
+  .filtroLinha {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+  }
+  
+  .filtroLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-size: 14px;
+  }
+  
+  .input {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+  }
+  
+  .totalMes {
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #2d8659;
+    font-weight: 500;
+  }
+  
