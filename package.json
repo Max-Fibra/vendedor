@@ -1,6 +1,6 @@
 {
   "name": "painel-vendedores",
-  "homepage": "https://www.vendedor.appsy.app.br",
+  "homepage": "https://vendedor.appsy.app.br",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
