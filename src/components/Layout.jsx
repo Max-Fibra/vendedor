@@ -1,22 +1,18 @@
 import styles from "./Layout.module.css";
-
-
-
+import { Link } from "react-router-dom";
 
 const Layout = ({ children, vendedor, ultimaAtualizacao, totalComissoes }) => {
-
   return (
     <div className={styles.layout}>
-      {/* Sidebar */}
       <aside className={styles.sidebar}>
         <h2>📊 Max Dashboard</h2>
         <nav className={styles.nav}>
-          <a href="/dashboard">📄 Vendas</a>
-          <a href="/metrics">📈 Métricas</a>
+          <Link to="/dashboard">📄 Vendas</Link>
+          <Link to="/metrics">📈 Métricas</Link>
           <button
             onClick={() => {
               localStorage.clear();
-              window.location.href = "/";
+              window.location.href = "/"; // opcional: posso trocar por navigate
             }}
             className={styles.logout}
           >
@@ -25,7 +21,6 @@ const Layout = ({ children, vendedor, ultimaAtualizacao, totalComissoes }) => {
         </nav>
       </aside>
 
-      {/* Conteúdo */}
       <main className={styles.main}>
         <div className={styles.header}>
           <h1>
@@ -36,14 +31,13 @@ const Layout = ({ children, vendedor, ultimaAtualizacao, totalComissoes }) => {
               </span>
             )}
             {totalComissoes !== undefined && (
-            <div className={styles.comissaoTotal}>
-              💰 Comissão total:{" "}
-              <strong>
-                R$ {totalComissoes.toFixed(2).replace(".", ",")}
-              </strong>
-            </div>
-          )}
-
+              <div className={styles.comissaoTotal}>
+                💰 Comissão total:{" "}
+                <strong>
+                  R$ {totalComissoes.toFixed(2).replace(".", ",")}
+                </strong>
+              </div>
+            )}
           </h1>
           <p>Veja suas vendas registradas abaixo.</p>
         </div>
@@ -52,6 +46,5 @@ const Layout = ({ children, vendedor, ultimaAtualizacao, totalComissoes }) => {
     </div>
   );
 };
-
 
 export default Layout;
