@@ -1,0 +1,85 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(1,101,17,1) 50%, rgba(0,0,0,1) 100%);
+
+    padding: 2rem;
+  }
+  
+  .card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+    animation: fadeIn 0.4s ease-in-out;
+  }
+  
+  .title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #05cc26;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .input {
+    width: 85%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ddd;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .input:focus {
+    border-color: #02b411;
+  }
+  
+  .error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .botaoLogin {
+    width: 96%;
+    background-color: #059c1a;
+    color: white;
+    font-weight: 600;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .botaoLogin:hover {
+    background-color: #04690d;
+  }
+  .animacao {
+    width: 120px;
+    margin: 0 auto;
+  }
+  

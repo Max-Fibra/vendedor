@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { buscarVendedores } from "../services/nocodb";
 import { Button } from "../components/ui/button";
+import { ShieldCheck } from "lucide-react";
+import Lottie from "lottie-react";
+import loginAnimacao from "../assets/login.json";
+
+
+import styles from "./Login.module.css";
+
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -28,22 +35,26 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md space-y-4">
-        <h2 className="text-2xl font-bold text-center">🔐 Login do Vendedor</h2>
-        <input
-          type="email"
-          placeholder="Digite seu e-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring"
-        />
-        {erro && <p className="text-red-500 text-sm">{erro}</p>}
-        <Button className="w-full" onClick={handleLogin}>
-          Entrar
-        </Button>
-      </div>
-    </div>
+<div className={styles.container}>
+  <div className={styles.card}>
+  <Lottie animationData={loginAnimacao} loop={true} className={styles.animacao} />
+    <h2 className={styles.title}>
+      <ShieldCheck size={24} /> Login
+    </h2>
+    <input
+      type="email"
+      placeholder="Digite seu e-mail"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className={styles.input}
+    />
+    {erro && <p className={styles.error}>{erro}</p>}
+    <Button className={styles.botaoLogin} onClick={handleLogin}>
+        Entrar
+      </Button>
+  </div>
+</div>
+
   );
 };
 
