@@ -3,7 +3,9 @@ import { HashRouter, Routes, Route } from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import Metrics from "./pages/Metrics";
+import AdminMetrics from "./pages/AdminMetrics";
 import Login from "./pages/Login";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   // ⛑ Redirecionador automático no client
@@ -25,6 +27,9 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/metrics" element={<Metrics />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/metrics" element={<AdminMetrics />} />
+
       </Routes>
     </HashRouter>
   );

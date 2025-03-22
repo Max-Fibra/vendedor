@@ -4,6 +4,7 @@ import { buscarVendedores } from "../services/nocodb";
 import { Button } from "../components/ui/button";
 import { ShieldCheck } from "lucide-react";
 import Lottie from "lottie-react";
+import { isAdmin } from "../services/adminService";
 import loginAnimacao from "../assets/login.json";
 
 
@@ -20,19 +21,29 @@ const Login = () => {
     buscarVendedores().then(setVendedores);
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const vendedorEncontrado = vendedores.find(
-        (v) => v.email?.toLowerCase() === email.toLowerCase()
-      );
-      
-
+      (v) => v.email?.toLowerCase() === email.toLowerCase()
+    );
+  
+    const ehAdmin = await isAdmin(email);
+  
     if (vendedorEncontrado) {
       localStorage.setItem("vendedor", JSON.stringify(vendedorEncontrado));
-      navigate("/dashboard");
+      navigate(ehAdmin ? "/admin" : "/dashboard");
+    } else if (ehAdmin) {
+      // Cria um objeto temporário para admins que não estão na tabela de vendedores
+      const adminTemporario = {
+        nome: "Administrador",
+        email,
+      };
+      localStorage.setItem("vendedor", JSON.stringify(adminTemporario));
+      navigate("/admin");
     } else {
       setErro("E-mail não encontrado. Tente novamente.");
     }
   };
+  
 
   return (
 <div className={styles.container}>

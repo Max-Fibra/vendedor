@@ -7,18 +7,30 @@ const Layout = ({ children, vendedor, ultimaAtualizacao, totalComissoes }) => {
       <aside className={styles.sidebar}>
         <h2>📊 Max Dashboard</h2>
         <nav className={styles.nav}>
-          <Link to="/dashboard">📄 Vendas</Link>
-          <Link to="/metrics">📈 Métricas</Link>
-          <button
-            onClick={() => {
-              localStorage.clear();
-              window.location.href = "/"; // opcional: posso trocar por navigate
-            }}
-            className={styles.logout}
-          >
-            🚪 Sair
-          </button>
-        </nav>
+            {/* Rota diferente para admin */}
+            {vendedor?.nome === "Administrador" ? (
+              <>
+                <Link to="/admin">📄 Vendas</Link>
+                <Link to="/admin/metrics">📈 Métricas</Link>
+              </>
+            ) : (
+              <>
+                <Link to="/dashboard">📄 Vendas</Link>
+                <Link to="/metrics">📈 Métricas</Link>
+              </>
+            )}
+
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.href = "/";
+              }}
+              className={styles.logout}
+            >
+              🚪 Sair
+            </button>
+          </nav>
+
       </aside>
 
       <main className={styles.main}>

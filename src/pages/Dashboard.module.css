@@ -123,3 +123,28 @@
     font-weight: 500;
   }
   
+
+  .acoesRelatorio {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: flex-end;
+  }
+  
+  .botaoRelatorio {
+    background-color: #0c9b13;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 23px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .botaoRelatorio:hover {
+    background-color: #04681a;
+  }
+  

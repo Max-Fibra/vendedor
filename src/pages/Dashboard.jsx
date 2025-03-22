@@ -8,6 +8,14 @@ import {
   updateControleVendas
 } from "../services/controleVendas";
 
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+
+
 const meses = [
   "Janeiro", "Fevereiro", "Março", "Abril",
   "Maio", "Junho", "Julho", "Agosto",
@@ -30,6 +38,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     const vendedorSalvo = JSON.parse(localStorage.getItem("vendedor"));
+
+
+    
     if (!vendedorSalvo || !vendedorSalvo.email) {
       window.location.href = "/";
       return;
@@ -68,16 +79,93 @@ const Dashboard = () => {
 
     carregarVendas();
     carregarControle();
-    const interval = setInterval(carregarVendas, 30000);
+    const interval = setInterval(carregarVendas, 500);
     return () => clearInterval(interval);
   }, []);
 
+
+  useEffect(() => {
+    const vendedorSalvo = JSON.parse(localStorage.getItem("vendedor"));
+  
+    if (!vendedorSalvo || !vendedorSalvo.email) {
+      window.location.href = "/";
+      return;
+    }
+  
+    const atualizarControle = async () => {
+      try {
+        const existente = await getControlePorVendedor(vendedorSalvo.nome);
+        if (existente) {
+          setControle(existente.DadosClientesVendedores || {});
+          setRecordId(existente.Id);
+        }
+      } catch (erro) {
+        console.error("Erro ao atualizar controle de vendas:", erro);
+      }
+    };
+  
+    atualizarControle(); // primeira chamada imediata
+    const interval = setInterval(atualizarControle, 3000); // atualiza a cada 3 segundos
+  
+    return () => clearInterval(interval);
+  }, []);
+  
+
+  
   const toggleAberto = (chave) => {
     setAbertos((prev) => {
       const jáEstáAberto = prev[chave];
       return jáEstáAberto ? {} : { [chave]: true };
     });
   };
+
+
+  // 📄 Exportar para PDF
+const exportarPDF = () => {
+  const doc = new jsPDF();
+  doc.text("Relatório de Vendas", 14, 16);
+
+  const tabela = vendasFiltradas.map((venda) => {
+    const statusCliente = controle[venda.cpf] || {};
+    return [
+      venda.nome,
+      venda.cpf,
+      venda.protocolo,
+      venda.dataHora,
+      `R$ ${calcularComissao(statusCliente).toFixed(2).replace(".", ",")}`,
+    ];
+  });
+
+  autoTable(doc, {
+    startY: 20,
+    head: [["Nome", "CPF", "Protocolo", "Data", "Comissão"]],
+    body: tabela,
+  });
+
+  doc.save(`relatorio-vendas-${vendedor?.nome || "vendedor"}.pdf`);
+};
+
+// 📊 Exportar para Excel
+const exportarExcel = () => {
+  const dados = vendasFiltradas.map((venda) => {
+    const statusCliente = controle[venda.cpf] || {};
+    return {
+      Nome: venda.nome,
+      CPF: venda.cpf,
+      Protocolo: venda.protocolo,
+      Data: venda.dataHora,
+      Comissão: `R$ ${calcularComissao(statusCliente).toFixed(2).replace(".", ",")}`,
+    };
+  });
+
+  const planilha = XLSX.utils.json_to_sheet(dados);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, planilha, "Relatório");
+
+  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+  const blob = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(blob, `relatorio-vendas-${vendedor?.nome || "vendedor"}.xlsx`);
+};
   
   
 
@@ -176,6 +264,17 @@ const Dashboard = () => {
                 onChange={(e) => setBuscaProtocolo(e.target.value)}
               />
             </label>
+
+            <div className={styles.acoesRelatorio}>
+              <button className={styles.botaoRelatorio} onClick={exportarPDF}>
+                📄 Exportar PDF
+              </button>
+              <button className={styles.botaoRelatorio} onClick={exportarExcel}>
+                📊 Exportar Excel
+              </button>
+            </div>
+
+
           </div>
 
           {mesSelecionado !== "" && (
@@ -197,9 +296,32 @@ const Dashboard = () => {
               return (
                 <div key={chaveUnica} className={styles.cardWrapper}>
                 <div className={styles.cardHeader} onClick={() => toggleAberto(chaveUnica)}>
-                  <span><strong>{venda.nome}</strong></span>
+                  <span style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <strong>{venda.nome}</strong>
+                    {status?.Autorizado && (
+                      <span
+                        style={{
+                          padding: "2px 8px",
+                          borderRadius: "12px",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          backgroundColor:
+                            status.Autorizado === "APROVADO" ? "#d1fae5" :
+                            status.Autorizado === "NEGADO" ? "#fee2e2" :
+                            "#e5e7eb",
+                          color:
+                            status.Autorizado === "APROVADO" ? "#065f46" :
+                            status.Autorizado === "NEGADO" ? "#991b1b" :
+                            "#374151"
+                        }}
+                      >
+                        {status.Autorizado}
+                      </span>
+                    )}
+                  </span>
                   <span>{venda.dataHora}</span>
                 </div>
+
 
                 {isOpen && (
                   <div className={isOpen ? styles.cardBody : styles.cardBodyHidden}>
@@ -216,15 +338,23 @@ const Dashboard = () => {
                       </p>
 
                       <div className={styles.checkboxGroup}>
-                        {['Pagou Taxa', 'Bloqueado', 'Ativado', 'Desistiu'].map((campo) => (
-                          <label key={campo}>
-                            <input
-                              type="checkbox"
-                              checked={status[campo] === 'SIM'}
-                              onChange={(e) => handleCheckboxChange(venda.cpf, campo, e.target.checked)}
-                            /> {campo}
-                          </label>
-                        ))}
+                      {['Pagou Taxa', 'Bloqueado', 'Ativado', 'Desistiu'].map((campo) => {
+                          const autorizado = status?.Autorizado;
+                          const bloqueado = autorizado === "APROVADO" || autorizado === "NEGADO";
+
+                          return (
+                            <label key={campo}>
+                              <input
+                                type="checkbox"
+                                checked={status[campo] === 'SIM'}
+                                onChange={(e) => handleCheckboxChange(venda.cpf, campo, e.target.checked)}
+                                disabled={bloqueado}
+                              />{" "}
+                              {campo}
+                            </label>
+                          );
+                        })}
+
                       </div>
                     </>
                   </div>
