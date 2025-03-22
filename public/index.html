@@ -25,6 +25,19 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+
+    <script>
+      (function() {
+        const pathname = window.location.pathname;
+        const hash = window.location.hash;
+    
+        // Se acessaram sem hash (ex: /dashboard), redireciona para #/dashboard
+        if (!hash && pathname !== "/") {
+          const newPath = "#"+pathname;
+          window.location.replace("/" + newPath);
+        }
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -41,17 +54,6 @@
     -->
   </body>
 
-  <script>
-    (function() {
-      const pathname = window.location.pathname;
-      const hash = window.location.hash;
-  
-      // Se acessaram sem hash (ex: /dashboard), redireciona para #/dashboard
-      if (!hash && pathname !== "/") {
-        const newPath = "#"+pathname;
-        window.location.replace("/" + newPath);
-      }
-    })();
-  </script>
+
   
 </html>
