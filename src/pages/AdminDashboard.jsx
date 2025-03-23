@@ -127,7 +127,7 @@ const AdminDashboard = () => {
           
             const intervalo = setInterval(() => {
               carregarTodosJSONs();
-            }, 9000); // 3 segundos
+            }, 300); // 3 segundos
           
             return () => clearInterval(intervalo); // limpa ao desmontar
           }, []);

@@ -24,7 +24,7 @@ const Login = () => {
 
   useEffect(() => {
     buscarVendedores().then((res) => {
-      console.log("🔥 Vendedores carregados:", res); // 👈 aqui
+      //console.log("🔥 Vendedores carregados:", res); // 👈 aqui
       setVendedores(res);
     });
   }, []);
@@ -38,7 +38,7 @@ const Login = () => {
     const ehAdmin = await isAdmin(email);
   
     if (vendedorEncontrado) {
-      console.log("🔍 Vendedor encontrado:", vendedorEncontrado); // <-- aqui!
+      //console.log("🔍 Vendedor encontrado:", vendedorEncontrado); // <-- aqui!
       localStorage.setItem("vendedor", JSON.stringify(vendedorEncontrado));
       navigate(ehAdmin ? "/admin" : "/dashboard");
     } else if (ehAdmin) {

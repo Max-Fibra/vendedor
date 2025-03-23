@@ -18,7 +18,7 @@ export const buscarVendedores = async () => {
 
     if (objVendedores && typeof objVendedores === "object") {
       Object.values(objVendedores).forEach((v) => {
-        console.log("🧩 Vendedor bruto:", v); // 👀 confere aqui
+        //console.log("🧩 Vendedor bruto:", v); // 👀 confere aqui
 
         if (v.nome && v.email) {
           vendedores.push({

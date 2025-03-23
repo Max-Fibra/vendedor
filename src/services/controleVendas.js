@@ -38,7 +38,7 @@ export const updateControleVendas = async (recordId, data) => {
   }
 
   const body = [{ Id: recordId, ...data }];
-  console.log("PATCH BODY:", body);
+  //console.log("PATCH BODY:", body);
 
   const res = await api.patch('/tables/m8xz7i1uldvt2gr/records', body);
   return res.data;
