@@ -9,6 +9,10 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { enviarStatusVenda } from "../services/notificacaoService";
+import CustomModal from "../components/CustomModal";
+
+
 
 
 
@@ -37,6 +41,9 @@ const AdminDashboard = () => {
     const [acordesAbertos, setAcordesAbertos] = useState({});
     const [vendasAbertas, setVendasAbertas] = useState({});
     const [buscaProtocolo, setBuscaProtocolo] = useState("");
+    const [hover, setHover] = useState(false);
+    const [modal, setModal] = useState({ open: false, title: "", message: "", type: "success" });
+
 
 
 
@@ -120,7 +127,7 @@ const AdminDashboard = () => {
           
             const intervalo = setInterval(() => {
               carregarTodosJSONs();
-            }, 300); // 3 segundos
+            }, 9000); // 3 segundos
           
             return () => clearInterval(intervalo); // limpa ao desmontar
           }, []);
@@ -197,13 +204,19 @@ const AdminDashboard = () => {
           [protocolo]: !prev[protocolo],
         }));
       };
+
+      
       
 
     
 
 
     return (
+        <>
+
+
         <Layout vendedor={{ nome: "Administrador" }} ultimaAtualizacao={null} totalComissoes={totalComissoes}>
+            
             <div className={styles.container}>
                 <div className={styles.filtroLinha}>
                     <label>
@@ -336,7 +349,7 @@ const AdminDashboard = () => {
                                                 <>
                                                 <button
                                                     style={{
-                                                    backgroundColor: "#198754",
+                                                    backgroundColor: "#048010",
                                                     color: "#fff",
                                                     border: "none",
                                                     borderRadius: "4px",
@@ -374,7 +387,79 @@ const AdminDashboard = () => {
                                             </div>
                                         </div>
 
-                                        <span>{vendasAbertas[venda.protocolo] ? "🔽" : "▶️"} {venda.dataHora}</span>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                            <span>{vendasAbertas[venda.protocolo] ? "🔽" : "▶️"} {venda.dataHora}</span>
+                                            {["APROVADO", "NEGADO"].includes(status.Autorizado) && (
+                                                <button
+                                                    style={{
+                                                        backgroundColor: hover ? "#0b5ed7" : "#0d6efd",
+                                                        color: "#fff",
+                                                        border: "none",
+                                                        borderRadius: "4px",
+                                                        padding: "4px 8px",
+                                                        fontSize: "12px",
+                                                        cursor: "pointer",
+                                                        transition: "background-color 0.2s",
+                                                    }}
+                                                    onMouseEnter={() => setHover(true)}
+                                                    onMouseLeave={() => setHover(false)}
+                                                    title="Notificar vendedor"
+                                                    onClick={async (e) => {
+                                                        e.stopPropagation();
+                                                        const statusInfo = controle[venda.vendedor]?.[venda.cpf] || {};
+                                                        const status = statusInfo.Autorizado;
+
+                                                        if (!status) {
+                                                        setModal({
+                                                            open: true,
+                                                            title: "Status indefinido",
+                                                            message: "Status ainda não definido para essa venda.",
+                                                            type: "error",
+                                                        });
+                                                        return;
+                                                        }
+
+                                                        const motivo =
+                                                        statusInfo.Desistiu === "SIM"
+                                                            ? "Cliente desistiu"
+                                                            : statusInfo.Bloqueado === "SIM"
+                                                            ? "Cliente bloqueado"
+                                                            : null;
+
+                                                        try {
+                                                        await enviarStatusVenda(
+                                                            venda.vendedorEmail,
+                                                            status === "APROVADO" ? "Autorizada" : "Negada",
+                                                            venda.nome,
+                                                            venda.plano,
+                                                            venda.protocolo,
+                                                            motivo
+                                                        );
+                                                        setModal({
+                                                            open: true,
+                                                            title: "✅ Notificação enviada",
+                                                            message: "O vendedor foi informado sobre o status da venda.",
+                                                            type: "success",
+                                                        });
+                                                        } catch (err) {
+                                                        console.error(err);
+                                                        setModal({
+                                                            open: true,
+                                                            title: "❌ Erro ao notificar",
+                                                            message: "Não foi possivel enviar, a notificação para o vendedor não está ativo.",
+                                                            type: "error",
+                                                        });
+                                                        }
+                                                    }}
+                                                    >
+                                                    📩 Notificar
+                                                    </button>
+
+                                                )}
+
+                                            </div>
+
+
                                     </div>
 
                                     {vendasAbertas[venda.protocolo] && (
@@ -412,10 +497,23 @@ const AdminDashboard = () => {
                     ))}
                     </div>
 
-
-
             </div>
+            
+        
+        
         </Layout>
+        {modal.open && (
+            <CustomModal
+                open={modal.open}
+                title={modal.title}
+                message={modal.message}
+                type={modal.type}
+                onClose={() => setModal({ ...modal, open: false })}
+            />
+            )}
+
+
+        </>
     );
 };
 
