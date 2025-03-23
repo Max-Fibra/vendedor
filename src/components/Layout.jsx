@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import styles from "./Layout.module.css";
 import { Link } from "react-router-dom";
 
@@ -6,26 +7,46 @@ const Layout = ({
   vendedor,
   ultimaAtualizacao,
   totalComissoes,
-  mostrarHeader = true, // 👈 valor padrão true
+  mostrarHeader = true,
 }) => {
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  const fecharMenu = () => setMenuAberto(false);
+
   return (
     <div className={styles.layout}>
-      <aside className={styles.sidebar}>
+      {/* BACKDROP */}
+      {menuAberto && <div className={styles.backdrop} onClick={fecharMenu} />}
+
+      {/* SIDEBAR */}
+      <div
+        className={`${styles.sidebar} ${menuAberto ? styles.sidebarAberto : ""}`}
+      >
+        {/* Botão X para fechar */}
+        <button className={styles.closeButton} onClick={fecharMenu}>
+          ✖
+        </button>
+
         <h2>📊 Max Dashboard</h2>
         <nav className={styles.nav}>
           {vendedor?.nome === "Administrador" ? (
             <>
-              <Link to="/admin">📄 Vendas</Link>
-              <Link to="/admin/metrics">📈 Métricas</Link>
+              <Link to="/admin" onClick={fecharMenu}>📄 Vendas</Link>
+              <Link to="/admin/metrics" onClick={fecharMenu}>📈 Métricas</Link>
             </>
           ) : (
             <>
-              <Link to="/dashboard">📄 Vendas</Link>
-              <Link to="/metrics">📈 Métricas</Link>
-              <Link to="/config">⚙️ Configuração</Link>
+              <Link to="/dashboard" onClick={fecharMenu}>📄 Vendas</Link>
+              <Link to="/metrics" onClick={fecharMenu}>📈 Métricas</Link>
+              <Link to="/config" onClick={fecharMenu}>⚙️ Configuração</Link>
             </>
           )}
-
           <button
             onClick={() => {
               localStorage.clear();
@@ -36,9 +57,17 @@ const Layout = ({
             🚪 Sair
           </button>
         </nav>
-      </aside>
+      </div>
 
+      {/* BOTÃO ☰ */}
       <main className={styles.main}>
+      {isMobile && (
+          <button className={styles.menuToggle} onClick={() => setMenuAberto(true)}>
+            ☰
+          </button>
+        )}
+
+
         {mostrarHeader && (
           <div className={styles.header}>
             <h1>
@@ -60,7 +89,6 @@ const Layout = ({
             <p>Veja suas vendas registradas abaixo.</p>
           </div>
         )}
-
         {children}
       </main>
     </div>

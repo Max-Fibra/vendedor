@@ -148,3 +148,31 @@
     background-color: #04681a;
   }
   
+  .dataHora {
+    display: inline;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .nomeCliente {
+    display: block;
+    font-weight: bold;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+
+  @media (max-width: 769px) {
+    .dataHora {
+      display: none;
+    }
+    .nomeCliente {
+      max-width: none;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+    }
+  }
+  

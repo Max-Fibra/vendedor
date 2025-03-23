@@ -245,10 +245,14 @@ const AdminDashboard = () => {
                     </label>
 
 
-                    <div>
-                        <button className={styles.botaoRelatorio} onClick={exportarPDF}>📄 Exportar PDF</button>
-                        <button className={styles.botaoRelatorio} onClick={exportarExcel}>📊 Exportar Excel</button>
-                    </div>
+                    <div className={styles.acoesRelatorio}>
+                        <button className={styles.botaoRelatorio} onClick={exportarPDF}>
+                            📄 Exportar PDF
+                        </button>
+                        <button className={styles.botaoRelatorio} onClick={exportarExcel}>
+                            📊 Exportar Excel
+                        </button>
+            </div>
                 </div>
 
                 <div className={styles.grid}>
@@ -305,8 +309,12 @@ const AdminDashboard = () => {
                                         alignItems: "center",
                                         }}
                                     >
-                                        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                        <strong>{venda.nome}</strong>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                        <strong className={styles.nomeCliente} title={venda.nome}>
+                                        {venda.nome}
+                                        </strong>
+
+
 
                                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             {status.Autorizado === "APROVADO" ? (
@@ -388,7 +396,12 @@ const AdminDashboard = () => {
                                         </div>
 
                                         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                            <span>{vendasAbertas[venda.protocolo] ? "🔽" : "▶️"} {venda.dataHora}</span>
+                                        <span>
+                                            {vendasAbertas[venda.protocolo] ? "🔽" : "▶️"}{" "}
+                                            <span className={styles.dataHora}>{venda.dataHora}</span>
+                                            </span>
+
+
                                             {["APROVADO", "NEGADO"].includes(status.Autorizado) && (
                                                 <button
                                                     style={{
