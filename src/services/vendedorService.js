@@ -25,6 +25,8 @@ export const buscarVendedores = async () => {
             nome: v.nome,
             email: v.email,
             telefone: v.telefone || null,
+            classificacao: v.Classificação || "Não Informado",
+            "ReceberNotificação": v["ReceberNotificação"] || "False" // 👈 adiciona isso
           });
         }
       });

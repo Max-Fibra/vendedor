@@ -7,6 +7,10 @@ import AdminMetrics from "./pages/AdminMetrics";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import Config from "./pages/Config"; // 👈 import da nova página
+import AdminConfigClassificacao from "./pages/AdminConfigClassificacao";
+import AdminConfigIndex from "./pages/AdminConfigIndex";
+import AdminConfigComissao from "./pages/AdminConfigComissao";
+import AdminConfigNotificacoes from "./pages/AdminConfigNotificacoes";
 
 function App() {
   // ⛑ Redirecionador automático no client
@@ -31,6 +35,10 @@ function App() {
         <Route path="/config" element={<Config />} /> {/* ✅ nova rota aqui */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/metrics" element={<AdminMetrics />} />
+        <Route path="/admin/config-classificacao" element={<AdminConfigClassificacao />} />
+        <Route path="/admin/config" element={<AdminConfigIndex />} />
+        <Route path="/admin/config-comissão" element={<AdminConfigComissao />} />
+        <Route path="/admin/config-notificacoes" element={<AdminConfigNotificacoes />} />
       </Routes>
     </HashRouter>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { baixarJsonVendedor } from "../services/api";
+import { buscarVendedorPorEmail } from "../services/vendedorService";
 import Layout from "../components/Layout";
 import styles from "./Dashboard.module.css";
 import {
@@ -7,6 +8,9 @@ import {
   createControleVendas,
   updateControleVendas
 } from "../services/controleVendas";
+
+import { buscarComissoes } from "../services/comissaoService";
+
 
 
 import jsPDF from "jspdf";
@@ -31,6 +35,8 @@ const Dashboard = () => {
   const [buscaProtocolo, setBuscaProtocolo] = useState("");
   const [controle, setControle] = useState({});
   const [recordId, setRecordId] = useState(null);
+  const [valoresComissao, setValoresComissao] = useState({});
+
 
   const ultimaAtualizacao = vendas.length
     ? vendas.map((v) => v.dataHora).sort().reverse()[0]
@@ -48,6 +54,18 @@ const Dashboard = () => {
 
     setVendedor(vendedorSalvo);
 
+    buscarVendedorPorEmail(vendedorSalvo.email).then((dadosCompletos) => {
+      if (dadosCompletos?.Classificação) {
+        setVendedor((prev) => ({
+          ...prev,
+          classificacao: dadosCompletos.Classificação
+        }));
+      }
+    });
+    buscarComissoes().then(({ comissoes }) => {
+      setValoresComissao(comissoes);
+    });
+
     const nomeSanitizado = vendedorSalvo.nome.toLowerCase().replace(/\s+/g, "_");
     const emailSanitizado = vendedorSalvo.email.toLowerCase().replace(/[@.]/g, "_");
     const nomeArquivo = `${nomeSanitizado}__${emailSanitizado}.json`;
@@ -61,6 +79,8 @@ const Dashboard = () => {
         .catch(() => setVendas([]))
         .finally(() => setCarregando(false));
     };
+
+    
 
     const carregarControle = async () => {
       const existente = await getControlePorVendedor(vendedorSalvo.nome);
@@ -76,6 +96,8 @@ const Dashboard = () => {
         setRecordId(novo.Id);
       }
     };
+
+    
 
     carregarVendas();
     carregarControle();
@@ -190,12 +212,27 @@ const exportarExcel = () => {
     const bloqueado = status["Bloqueado"] === "SIM";
     const desistiu = status["Desistiu"] === "SIM";
   
-    if (desistiu || bloqueado) return 0;
-    if (!pagou && ativo) return 5;
-    if (pagou && ativo && !bloqueado) return 25;
+    // Se desistiu ou está bloqueado, sem comissão
+    if (desistiu || bloqueado || !vendedor?.classificacao) return 0;
+  
+    // Se não pagou taxa mas está ativo, usar valor da classificação "Sem Taxa"
+    if (!pagou && ativo) {
+      const valorStr = valoresComissao?.["Sem Taxa"]?.valor || "R$ 0,00";
+      const numero = parseFloat(valorStr.replace("R$", "").replace(",", ".").trim());
+      return isNaN(numero) ? 0 : numero;
+    }
+  
+    // Se pagou e está ativo, usar valor da classificação do vendedor
+    if (pagou && ativo) {
+      const valorStr = valoresComissao?.[vendedor.classificacao]?.valor || "R$ 0,00";
+      const numero = parseFloat(valorStr.replace("R$", "").replace(",", ".").trim());
+      return isNaN(numero) ? 0 : numero;
+    }
+  
     return 0;
   };
-
+  
+  
   const vendasFiltradas = filtrarVendas(); // <-- define antes de usar
 
   
@@ -237,6 +274,13 @@ const exportarExcel = () => {
     ultimaAtualizacao={ultimaAtualizacao}
     totalComissoes={totalComissoes} // <-- adiciona aqui
   >
+
+    <p style={{ fontWeight: "bold", fontSize: "16px", margin: "0 0 1rem 0", color: "#0d1117" }}>
+      🏅 Sua classificação:{" "}
+      <span style={{ color: "#007bff" }}>{vendedor?.classificacao || "Não definida"}</span>
+    </p>
+
+
       <div className={styles.container}>
         <div className={styles.filtros}>
           <div className={styles.filtroLinha}>

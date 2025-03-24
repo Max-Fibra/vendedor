@@ -11,6 +11,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { enviarStatusVenda } from "../services/notificacaoService";
 import CustomModal from "../components/CustomModal";
+import { buscarComissoes } from "../services/comissaoService";
 
 
 
@@ -22,16 +23,29 @@ const meses = [
     "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
-const calcularComissao = (status) => {
+const calcularComissao = (status, classificacao, valoresComissao) => {
     const pagou = status["Pagou Taxa"] === "SIM";
     const ativo = status["Ativado"] === "SIM";
     const bloqueado = status["Bloqueado"] === "SIM";
     const desistiu = status["Desistiu"] === "SIM";
-    if (desistiu || bloqueado) return 0;
-    if (!pagou && ativo) return 5;
-    if (pagou && ativo && !bloqueado) return 25;
+  
+    if (desistiu || bloqueado || !classificacao) return 0;
+  
+    if (!pagou && ativo) {
+      const valorStr = valoresComissao?.["Sem Taxa"]?.valor || "R$ 0,00";
+      const numero = parseFloat(valorStr.replace("R$", "").replace(",", ".").trim());
+      return isNaN(numero) ? 0 : numero;
+    }
+  
+    if (pagou && ativo) {
+      const valorStr = valoresComissao?.[classificacao]?.valor || "R$ 0,00";
+      const numero = parseFloat(valorStr.replace("R$", "").replace(",", ".").trim());
+      return isNaN(numero) ? 0 : numero;
+    }
+  
     return 0;
-};
+  };
+  
 
 const AdminDashboard = () => {
     const [vendas, setVendas] = useState([]);
@@ -43,6 +57,7 @@ const AdminDashboard = () => {
     const [buscaProtocolo, setBuscaProtocolo] = useState("");
     const [hover, setHover] = useState(false);
     const [modal, setModal] = useState({ open: false, title: "", message: "", type: "success" });
+    const [valoresComissao, setValoresComissao] = useState({});
 
 
 
@@ -91,6 +106,7 @@ const AdminDashboard = () => {
         
             const novasVendas = [];
             const controleMapeado = {};
+            const { comissoes } = await buscarComissoes(); // 👈 aqui
         
             for (const vendedor of vendedores) {
                 const nomeSanitizado = vendedor.nome.toLowerCase().replace(/\s+/g, "_");
@@ -102,7 +118,12 @@ const AdminDashboard = () => {
                 const dados = await res.json();
         
                 if (Array.isArray(dados)) {
-                    dados.forEach(v => v.vendedor = vendedor.nome);
+                    vendedor.classificacao = vendedor.classificacao || "Sem classificação";
+                    dados.forEach(v => {
+                      v.vendedor = vendedor.nome;
+                      v.classificacao = vendedor.classificacao;
+                    });
+
                     novasVendas.push(...dados);
         
                     const controleDoVendedor = controleGeral.find(c => c.Title === vendedor.nome);
@@ -116,6 +137,7 @@ const AdminDashboard = () => {
             setVendas(novasVendas);
             setControle(controleMapeado);
             setCarregando(false);
+            setValoresComissao(comissoes);
             } catch (erro) {
             console.error("Erro ao buscar vendedores ou JSONs:", erro);
             }
@@ -143,10 +165,10 @@ const AdminDashboard = () => {
   };
 
     const vendasFiltradas = filtrarVendas();
-    const totalComissoes = vendasFiltradas.reduce((total, venda) => {
-        const status = controle[venda.vendedor]?.[venda.cpf] || {};
-        return total + calcularComissao(status);
-    }, 0);
+            const totalComissoes = vendasFiltradas.reduce((total, venda) => {
+            const status = controle[venda.vendedor]?.[venda.cpf] || {};
+            return total + calcularComissao(status, venda.classificacao, valoresComissao);
+            }, 0);
 
     const exportarPDF = () => {
         const doc = new jsPDF();
@@ -481,8 +503,10 @@ const AdminDashboard = () => {
                                         <p><strong>Protocolo:</strong> {venda.protocolo}</p>
                                         <p><strong>CPF:</strong> {venda.cpf}</p>
                                         <p><strong>Telefone:</strong> {venda.telefone1}</p>
-                                        <p><strong>Comissão:</strong> R$ {calcularComissao(status).toFixed(2).replace(".", ",")}</p>
-
+                                        <p><strong>Comissão:</strong> R$ {
+                                                calcularComissao(status, venda.classificacao, valoresComissao)
+                                                .toFixed(2).replace(".", ",")
+                                                }</p>
                                         <div style={{ marginTop: 10 }}>
                                             {["Pagou Taxa", "Bloqueado", "Ativado", "Desistiu"].map((campo) => (
                                             <label key={campo} style={{ display: "block", marginBottom: 4 }}>

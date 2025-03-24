@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
 import styles from "./Layout.module.css";
 import { Link } from "react-router-dom";
 
@@ -11,6 +13,13 @@ const Layout = ({
 }) => {
   const [menuAberto, setMenuAberto] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const location = useLocation();
+
+
+  const esconderMensagem = location.pathname.startsWith("/admin/config");
+
+
+
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -39,6 +48,7 @@ const Layout = ({
             <>
               <Link to="/admin" onClick={fecharMenu}>📄 Vendas</Link>
               <Link to="/admin/metrics" onClick={fecharMenu}>📈 Métricas</Link>
+              <Link to="/admin/config" onClick={fecharMenu}>⚙️ Configurações</Link>
             </>
           ) : (
             <>
@@ -86,7 +96,9 @@ const Layout = ({
                 </div>
               )}
             </h1>
-            <p>Veja suas vendas registradas abaixo.</p>
+            {!esconderMensagem && (
+          <p>Veja suas vendas registradas abaixo.</p>
+        )}
           </div>
         )}
         {children}
