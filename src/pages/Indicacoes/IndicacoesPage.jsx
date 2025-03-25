@@ -130,7 +130,7 @@ const IndicacoesPage = () => {
             <h2><ClipboardList size={18} /> Minhas Indicações</h2>
             <p>Veja o histórico de quem já foi indicado.</p>
             <button
-              onClick={() => window.location.href = '/indicacoes/minhas'}
+              onClick={() => window.location.href = '#/indicacoes/minhas'}
               className={styles.botao}
             >
               Ver Minhas Indicações
