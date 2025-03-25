@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-
+import { useLocation, Link } from "react-router-dom";
 import styles from "./Layout.module.css";
-import { Link } from "react-router-dom";
 
 const Layout = ({
   children,
@@ -15,29 +13,23 @@ const Layout = ({
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
 
-
   const esconderMensagem = location.pathname.startsWith("/admin/config");
 
-
-
+  const isActive = (path) => location.pathname.startsWith(path);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   const fecharMenu = () => setMenuAberto(false);
 
   return (
     <div className={styles.layout}>
-      {/* BACKDROP */}
       {menuAberto && <div className={styles.backdrop} onClick={fecharMenu} />}
 
-      {/* SIDEBAR */}
-      <div
-        className={`${styles.sidebar} ${menuAberto ? styles.sidebarAberto : ""}`}
-      >
-        {/* Botão X para fechar */}
+      <div className={`${styles.sidebar} ${menuAberto ? styles.sidebarAberto : ""}`}>
         <button className={styles.closeButton} onClick={fecharMenu}>
           ✖
         </button>
@@ -46,17 +38,70 @@ const Layout = ({
         <nav className={styles.nav}>
           {vendedor?.nome === "Administrador" ? (
             <>
-              <Link to="/admin" onClick={fecharMenu}>📄 Vendas</Link>
-              <Link to="/admin/metrics" onClick={fecharMenu}>📈 Métricas</Link>
-              <Link to="/admin/config" onClick={fecharMenu}>⚙️ Configurações</Link>
+              <Link
+                to="/admin"
+                onClick={fecharMenu}
+                className={
+                  isActive("/admin") &&
+                  !isActive("/admin/metrics") &&
+                  !isActive("/admin/config")
+                    ? styles.ativo
+                    : ""
+                }
+              >
+                📄 Vendas
+              </Link>
+              <Link
+                to="/admin/metrics"
+                onClick={fecharMenu}
+                className={isActive("/admin/metrics") ? styles.ativo : ""}
+              >
+                📈 Métricas
+              </Link>
+              <Link
+                to="/admin/config"
+                onClick={fecharMenu}
+                className={isActive("/admin/config") ? styles.ativo : ""}
+              >
+                ⚙️ Configurações
+              </Link>
             </>
           ) : (
             <>
-              <Link to="/dashboard" onClick={fecharMenu}>📄 Vendas</Link>
-              <Link to="/metrics" onClick={fecharMenu}>📈 Métricas</Link>
-              <Link to="/config" onClick={fecharMenu}>⚙️ Configuração</Link>
+              <Link
+                to="/dashboard"
+                onClick={fecharMenu}
+                className={isActive("/dashboard") ? styles.ativo : ""}
+              >
+                📄 Vendas
+              </Link>
+              <Link
+                to="/metrics"
+                onClick={fecharMenu}
+                className={isActive("/metrics") ? styles.ativo : ""}
+              >
+                📈 Métricas
+              </Link>
+              <Link
+                to="/config"
+                onClick={fecharMenu}
+                className={isActive("/config") ? styles.ativo : ""}
+              >
+                ⚙️ Configuração
+              </Link>
+              <Link
+              to="#"
+              onClick={(e) => e.preventDefault()}
+              className={`${styles.desabilitado}`}
+              style={{ pointerEvents: 'none', opacity: 0.5 }}
+            >
+              💡 Indicações - Desenvolvimento
+            </Link>
+
+
             </>
           )}
+
           <button
             onClick={() => {
               localStorage.clear();
@@ -69,14 +114,12 @@ const Layout = ({
         </nav>
       </div>
 
-      {/* BOTÃO ☰ */}
       <main className={styles.main}>
-      {isMobile && (
+        {isMobile && (
           <button className={styles.menuToggle} onClick={() => setMenuAberto(true)}>
             ☰
           </button>
         )}
-
 
         {mostrarHeader && (
           <div className={styles.header}>
@@ -90,17 +133,14 @@ const Layout = ({
               {totalComissoes !== undefined && (
                 <div className={styles.comissaoTotal}>
                   💰 Comissão total:{" "}
-                  <strong>
-                    R$ {totalComissoes.toFixed(2).replace(".", ",")}
-                  </strong>
+                  <strong>R$ {totalComissoes.toFixed(2).replace(".", ",")}</strong>
                 </div>
               )}
             </h1>
-            {!esconderMensagem && (
-          <p>Veja suas vendas registradas abaixo.</p>
-        )}
+            {!esconderMensagem && <p>Veja suas vendas registradas abaixo.</p>}
           </div>
         )}
+
         {children}
       </main>
     </div>

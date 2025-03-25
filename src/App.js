@@ -12,6 +12,12 @@ import AdminConfigIndex from "./pages/AdminConfigIndex";
 import AdminConfigComissao from "./pages/AdminConfigComissao";
 import AdminConfigNotificacoes from "./pages/AdminConfigNotificacoes";
 
+import IndicacoesPage from "./pages/Indicacoes/IndicacoesPage";
+import FormularioIndicacao from "./pages/Indicacoes/FormularioIndicacao";
+
+
+
+
 function App() {
   // ⛑ Redirecionador automático no client
   useEffect(() => {
@@ -39,6 +45,11 @@ function App() {
         <Route path="/admin/config" element={<AdminConfigIndex />} />
         <Route path="/admin/config-comissão" element={<AdminConfigComissao />} />
         <Route path="/admin/config-notificacoes" element={<AdminConfigNotificacoes />} />
+
+
+        <Route path="/indicacoes" element={<IndicacoesPage />} />
+        <Route path="/indicar" element={<FormularioIndicacao />} />
+
       </Routes>
     </HashRouter>
   );

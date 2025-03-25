@@ -10,11 +10,7 @@ import loginAnimacao from "../assets/login.json";
 import { buscarVendedores as buscarDoNoco } from "../services/nocodb";
 import { buscarVendedores } from "../services/vendedorService";
 
-
-
-
 import styles from "./Login.module.css";
-
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,25 +20,26 @@ const Login = () => {
 
   useEffect(() => {
     buscarVendedores().then((res) => {
-      //console.log("🔥 Vendedores carregados:", res); // 👈 aqui
       setVendedores(res);
     });
   }, []);
-  
 
   const handleLogin = async () => {
     const vendedorEncontrado = vendedores.find(
       (v) => v.email?.toLowerCase() === email.toLowerCase()
     );
-  
+
     const ehAdmin = await isAdmin(email);
-  
+
     if (vendedorEncontrado) {
-      //console.log("🔍 Vendedor encontrado:", vendedorEncontrado); // <-- aqui!
+      if (vendedorEncontrado.Bloqueado === "True") {
+        setErro("⛔ Seu acesso foi bloqueado pelo administrador.");
+        return;
+      }
+
       localStorage.setItem("vendedor", JSON.stringify(vendedorEncontrado));
       navigate(ehAdmin ? "/admin" : "/dashboard");
     } else if (ehAdmin) {
-      // Cria um objeto temporário para admins que não estão na tabela de vendedores
       const adminTemporario = {
         nome: "Administrador",
         email,
@@ -53,29 +50,27 @@ const Login = () => {
       setErro("E-mail não encontrado. Tente novamente.");
     }
   };
-  
 
   return (
-<div className={styles.container}>
-  <div className={styles.card}>
-  <Lottie animationData={loginAnimacao} loop={true} className={styles.animacao} />
-    <h2 className={styles.title}>
-      <ShieldCheck size={24} /> Login
-    </h2>
-    <input
-      type="email"
-      placeholder="Digite seu e-mail"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      className={styles.input}
-    />
-    {erro && <p className={styles.error}>{erro}</p>}
-    <Button className={styles.botaoLogin} onClick={handleLogin}>
-        Entrar
-      </Button>
-  </div>
-</div>
-
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <Lottie animationData={loginAnimacao} loop={true} className={styles.animacao} />
+        <h2 className={styles.title}>
+          <ShieldCheck size={24} /> Login
+        </h2>
+        <input
+          type="email"
+          placeholder="Digite seu e-mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className={styles.input}
+        />
+        {erro && <p className={styles.error}>{erro}</p>}
+        <Button className={styles.botaoLogin} onClick={handleLogin}>
+          Entrar
+        </Button>
+      </div>
+    </div>
   );
 };
 

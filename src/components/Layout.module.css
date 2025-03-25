@@ -5,6 +5,16 @@
     min-height: 100vh;
     font-family: Arial, sans-serif;
   }
+
+
+  .ativo {
+    background-color: #1e1e1e;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: #fff !important;
+    font-weight: bold;
+  }
+  
   
   .sidebar {
     width: 260px;

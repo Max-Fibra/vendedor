@@ -8,6 +8,10 @@ const api = axios.create({
   },
 });
 
+
+
+
+
 export const buscarVendedores = async () => {
   const { data } = await api.get("/tables/m3cqlvi5625ahqs/records");
 
@@ -19,6 +23,7 @@ export const buscarVendedores = async () => {
     if (objVendedores && typeof objVendedores === "object") {
       Object.values(objVendedores).forEach((v) => {
         //console.log("🧩 Vendedor bruto:", v); // 👀 confere aqui
+       
 
         if (v.nome && v.email) {
           vendedores.push({
@@ -26,7 +31,9 @@ export const buscarVendedores = async () => {
             email: v.email,
             telefone: v.telefone || null,
             classificacao: v.Classificação || "Não Informado",
-            "ReceberNotificação": v["ReceberNotificação"] || "False" // 👈 adiciona isso
+            "ReceberNotificação": v["ReceberNotificação"] || "False", // 👈 adiciona isso
+             Bloqueado: v.Bloqueado || "False", // 👈 aqui!
+             CodigoIndicacao: v.CodigoIndicacao || null // 👈 só leitura!
           });
         }
       });
@@ -87,6 +94,36 @@ export const buscarVendedorPorEmail = async (email) => {
 
   return null;
 };
+
+
+export const criarNovoVendedor = async ({ nome, email, telefone }) => {
+  const { data } = await api.get("/tables/m3cqlvi5625ahqs/records");
+
+  const item = data.list[0];
+  const recordId = item.Id;
+  const objVendedores = item.Vendedor || {};
+
+  const novaChave = `vendedor${Object.keys(objVendedores).length + 1}`;
+  const codigoUnico = `${nome.toLowerCase().replace(/\s+/g, "")}-${Math.random().toString(36).substring(2, 8)}`;
+
+  objVendedores[novaChave] = {
+    nome,
+    email,
+    telefone,
+    Classificação: "Sem classificação",
+    "ReceberNotificação": "False",
+    CodigoIndicacao: codigoUnico, // 👈 salva aqui
+    UnicID: codigoUnico, // 👈 também salva o UnicID
+  };
+
+  await api.patch("/tables/m3cqlvi5625ahqs/records", {
+    Id: recordId,
+    Vendedor: objVendedores
+  });
+};
+
+
+
 
 
 
