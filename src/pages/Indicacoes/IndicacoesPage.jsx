@@ -30,7 +30,7 @@ const IndicacoesPage = () => {
 
         const codigoExistente = await buscarUnicIDPorVendedor(dados.nome);
         if (codigoExistente) {
-          setCodigoLink(`${window.location.origin}/indicar?codigo=${codigoExistente}`);
+          setCodigoLink(`${window.location.origin}/#/indicar?codigo=${codigoExistente}`);
 
           const registroCompleto = await buscarRegistroPorCodigoIndicacao(codigoExistente);
           setRegistro(registroCompleto);
