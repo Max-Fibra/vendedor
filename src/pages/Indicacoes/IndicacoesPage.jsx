@@ -48,7 +48,8 @@ const IndicacoesPage = () => {
     const novoCodigo = `${vendedor.nome.toLowerCase().replace(/\s/g, '')}-${Math.random().toString(36).substring(2, 8)}`;
 
     await criarOuAtualizarRegistroIndicacao(vendedor.nome, novoCodigo);
-    setCodigoLink(`${window.location.origin}/indicar?codigo=${novoCodigo}`);
+    setCodigoLink(`${window.location.origin}/#/indicar?codigo=${codigo}`)
+
 
     // Atualiza o registro após criar novo código
     const registroCompleto = await buscarRegistroPorCodigoIndicacao(novoCodigo);
