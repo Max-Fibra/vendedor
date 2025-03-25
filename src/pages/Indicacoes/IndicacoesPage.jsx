@@ -2,31 +2,38 @@ import React, { useEffect, useState } from 'react';
 import { buscarVendedorPorEmail } from '../../services/vendedorService';
 import {
   criarOuAtualizarRegistroIndicacao,
-  buscarUnicIDPorVendedor
+  buscarUnicIDPorVendedor,
+  buscarRegistroPorCodigoIndicacao
 } from '../../services/indicacaoService';
+
+import Layout from '../../components/Layout';
+import { Link2, ClipboardList, Megaphone } from 'lucide-react';
+import styles from './IndicacoesPage.module.css';
 
 const IndicacoesPage = () => {
   const [vendedor, setVendedor] = useState(null);
   const [codigoLink, setCodigoLink] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registro, setRegistro] = useState(null);
 
-  // 🔐 Simula o vendedor logado a partir do localStorage
   useEffect(() => {
-    const email = localStorage.getItem('email');
-    if (!email) {
-      setCodigoLink(''); // Limpar o código se não tiver vendedor
+    const vendedorSalvo = JSON.parse(localStorage.getItem("vendedor"));
+    if (!vendedorSalvo || !vendedorSalvo.email) {
+      window.location.href = "/";
       return;
     }
 
     const carregarVendedor = async () => {
-      const dados = await buscarVendedorPorEmail(email);
+      const dados = await buscarVendedorPorEmail(vendedorSalvo.email);
       if (dados) {
         setVendedor(dados);
 
         const codigoExistente = await buscarUnicIDPorVendedor(dados.nome);
         if (codigoExistente) {
-          // Se já tiver código, apenas gera o link
           setCodigoLink(`${window.location.origin}/indicar?codigo=${codigoExistente}`);
+
+          const registroCompleto = await buscarRegistroPorCodigoIndicacao(codigoExistente);
+          setRegistro(registroCompleto);
         }
       }
     };
@@ -42,57 +49,95 @@ const IndicacoesPage = () => {
 
     await criarOuAtualizarRegistroIndicacao(vendedor.nome, novoCodigo);
     setCodigoLink(`${window.location.origin}/indicar?codigo=${novoCodigo}`);
+
+    // Atualiza o registro após criar novo código
+    const registroCompleto = await buscarRegistroPorCodigoIndicacao(novoCodigo);
+    setRegistro(registroCompleto);
+
     setLoading(false);
   };
 
+  useEffect(() => {
+    if (!vendedor) return;
+  
+    const interval = setInterval(async () => {
+      try {
+        const codigoExistente = await buscarUnicIDPorVendedor(vendedor.nome);
+        if (codigoExistente) {
+          const registroAtualizado = await buscarRegistroPorCodigoIndicacao(codigoExistente);
+          setRegistro(registroAtualizado);
+        }
+      } catch (err) {
+        console.error("Erro ao atualizar contador de cliques:", err);
+      }
+    }, 300); // Atualiza a cada 5 segundos
+  
+    return () => clearInterval(interval); // Limpeza ao desmontar
+  }, [vendedor]);
+  
+  
+
+  // Quantidade de indicações registradas
+  // Pega o valor real salvo no campo separado
+  const totalCliques = registro?.ContadorCliques || 0;
+
+
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-6">📢 Indicações</h1>
+    <Layout vendedor={vendedor}>
+      <div className={styles.container}>
+        <h1 className={styles.titulo}>
+          <Megaphone size={24} className="text-pink-600" />
+          Indicações
+        </h1>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Card 1 - Link ou botão */}
-        <div className="border rounded-lg p-4 shadow-sm">
-          <h2 className="text-xl font-bold mb-2">🔗 Link de Indicação</h2>
+        <div className={styles.grid}>
+          {/* Card do link */}
+          <div className={styles.card}>
+            <h2><Link2 size={18} /> Link de Indicação</h2>
 
-          {!codigoLink ? (
-            <>
-              <p className="text-sm text-gray-600 mb-4">Clique abaixo para gerar seu link único de indicação.</p>
-              <button
-                onClick={gerarLink}
-                disabled={loading}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-              >
-                {loading ? 'Gerando...' : 'Gerar Link'}
-              </button>
-            </>
-          ) : (
-            <div className="text-sm mt-2">
-              <p>Seu link:</p>
-              <a
-                href={codigoLink}
-                className="text-blue-600 underline break-all"
-                target="_blank"
-                rel="noreferrer"
-              >
-                {codigoLink}
-              </a>
-            </div>
-          )}
-        </div>
+            {!codigoLink ? (
+              <>
+                <p>Clique no botão abaixo para gerar seu link único de indicação.</p>
+                <button
+                  onClick={gerarLink}
+                  disabled={loading}
+                  className={`${styles.botao} ${styles.botaoVerde}`}
+                >
+                  {loading ? 'Gerando...' : 'Gerar Link de Indicação'}
+                </button>
+              </>
+            ) : (
+              <>
+                <p>Você já tem um link gerado.</p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(codigoLink);
+                    alert("Link copiado para a área de transferência! ✅");
+                  }}
+                  className={styles.botao}
+                  title={codigoLink}
+                >
+                  📋 Copiar Link de Indicação
+                </button>
+                <p><strong>Cliques:</strong> {totalCliques}</p>
+              </>
+            )}
+          </div>
 
-        {/* Card 2 - Minhas Indicações */}
-        <div className="border rounded-lg p-4 shadow-sm">
-          <h2 className="text-xl font-bold mb-2">📋 Minhas Indicações</h2>
-          <p className="text-sm text-gray-600 mb-4">Veja o histórico de quem você indicou.</p>
-          <button
-            onClick={() => window.location.href = '/indicacoes/minhas'}
-            className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900 transition"
-          >
-            Ver Minhas Indicações
-          </button>
+          {/* Card de histórico */}
+          <div className={styles.card}>
+            <h2><ClipboardList size={18} /> Minhas Indicações</h2>
+            <p>Veja o histórico de quem já foi indicado.</p>
+            <button
+              onClick={() => window.location.href = '/indicacoes/minhas'}
+              className={styles.botao}
+            >
+              Ver Minhas Indicações
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

@@ -14,6 +14,8 @@ import AdminConfigNotificacoes from "./pages/AdminConfigNotificacoes";
 
 import IndicacoesPage from "./pages/Indicacoes/IndicacoesPage";
 import FormularioIndicacao from "./pages/Indicacoes/FormularioIndicacao";
+import MinhasIndicacoesPage from "./pages/Indicacoes/MinhasIndicacoesPage";
+import VerificarIndicacoesPage from "./pages/Indicacoes/VerificarIndicacoesPage";
 
 
 
@@ -49,6 +51,9 @@ function App() {
 
         <Route path="/indicacoes" element={<IndicacoesPage />} />
         <Route path="/indicar" element={<FormularioIndicacao />} />
+        <Route path="/indicacoes/minhas" element={<MinhasIndicacoesPage />} />
+        <Route path="/admin/verificar-indicacoes" element={<VerificarIndicacoesPage />} />
+
 
       </Routes>
     </HashRouter>

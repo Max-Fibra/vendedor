@@ -28,16 +28,36 @@ export const buscarUnicIDPorVendedor = async (vendedor) => {
   return registro?.UnicID || null;
 };
 
-// Atualizar indicações
-export const atualizarIndicacoes = async (recordId, novasIndicacoes) => {
-  const payload = {
-    Id: recordId,
-    Json_Indicações: { indicacoes: novasIndicacoes },
-  };
+export const atualizarIndicacoes = async (recordId, dados) => {
+  let payload;
+
+  if (Array.isArray(dados)) {
+    // Caso 1: só atualizando o array de indicações
+    payload = {
+      Id: recordId,
+      Json_Indicações: {
+        indicacoes: dados
+      }
+    };
+  } else if (typeof dados === 'object') {
+    // Caso 2: objeto completo com Json_Indicações + ContadorCliques
+    payload = {
+      Id: recordId,
+      ...(dados.Json_Indicações && { Json_Indicações: dados.Json_Indicações }),
+      ...(typeof dados.ContadorCliques === 'number' && { ContadorCliques: dados.ContadorCliques })
+    };
+  } else {
+    throw new Error('❌ Dados inválidos enviados para atualizarIndicacoes');
+  }
+
+  console.log('🚀 Payload enviado para PATCH:', payload);
 
   const res = await api.patch(`/tables/${TABLE_ID}/records`, payload);
   return res.data;
 };
+
+
+
 
 // Criar ou atualizar o registro do vendedor
 export const criarOuAtualizarRegistroIndicacao = async (vendedor, idUnic) => {
@@ -116,4 +136,20 @@ export const buscarVendedores = async () => {
   });
 
   return vendedores;
+};
+
+
+export const atualizarContadorCliques = async (recordId, novoValor) => {
+  const payload = {
+    Id: recordId,
+    ContadorCliques: novoValor
+  };
+
+  const res = await api.patch(`/tables/${TABLE_ID}/records`, payload);
+  return res.data;
+};
+
+export const buscarTodosRegistrosIndicacoes = async () => {
+  const { data } = await api.get(`/tables/ms1bmef6emrjww0/records`); // mesma tabela usada
+  return data.list || [];
 };

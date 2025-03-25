@@ -12,6 +12,8 @@ import { saveAs } from "file-saver";
 import { enviarStatusVenda } from "../services/notificacaoService";
 import CustomModal from "../components/CustomModal";
 import { buscarComissoes } from "../services/comissaoService";
+import { buscarTodosRegistrosIndicacoes, atualizarIndicacoes } from "../services/indicacaoService";
+
 
 
 
@@ -227,6 +229,28 @@ const AdminDashboard = () => {
         }));
       };
 
+      const atualizarStatusDaIndicacaoPorProtocolo = async (protocolo, novoStatus) => {
+        const registros = await buscarTodosRegistrosIndicacoes();
+      
+        for (const registro of registros) {
+          const indicacoes = registro.Json_Indicações?.indicacoes || [];
+      
+          const encontrou = indicacoes.find(ind => ind.protocoloFicha === protocolo);
+          if (encontrou) {
+            const novasIndicacoes = indicacoes.map(ind => {
+              if (ind.protocoloFicha === protocolo) {
+                return { ...ind, status: novoStatus.toLowerCase() };
+              }
+              return ind;
+            });
+      
+            await atualizarIndicacoes(registro.Id, novasIndicacoes);
+            console.log(`✅ Indicação com protocolo ${protocolo} atualizada para ${novoStatus}`);
+            break;
+          }
+        }
+      };
+      
       
       
 
@@ -353,6 +377,7 @@ const AdminDashboard = () => {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     atualizarStatus(venda.vendedor, venda.cpf, "Autorizado", null); // reabre
+                                                    atualizarStatusDaIndicacaoPorProtocolo(venda.protocolo, "aprovado");
                                                 }}
                                                 >
                                                 🔁 Reabrir
@@ -371,6 +396,7 @@ const AdminDashboard = () => {
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     atualizarStatus(venda.vendedor, venda.cpf, "Autorizado", null); // reanalisa
+                                                    atualizarStatusDaIndicacaoPorProtocolo(venda.protocolo, "negado");
                                                 }}
                                                 >
                                                 🔄 Reanalisar

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { buscarRegistroPorCodigoIndicacao, atualizarIndicacoes } from '../../services/indicacaoService';
+import styles from './FormularioIndicacoes.module.css'; // 👈 importa o CSS module
+
 
 const FormularioIndicacao = () => {
   const [codigo, setCodigo] = useState('');
@@ -13,30 +15,42 @@ const FormularioIndicacao = () => {
   const [mensagem, setMensagem] = useState('');
 
   useEffect(() => {
-    // Suporte ao HashRouter com parâmetro ?codigo=
     const hash = window.location.hash;
     const queryString = hash.includes('?') ? hash.split('?')[1] : '';
     const params = new URLSearchParams(queryString);
     const cod = params.get('codigo');
-
+  
     if (cod) {
       setCodigo(cod);
-
+  
       const buscar = async () => {
-        const registro = await buscarRegistroPorCodigoIndicacao(cod);
-        if (registro) {
-          setRegistro(registro);
-          setVendedor(registro.Vendedor);
+        const registroEncontrado = await buscarRegistroPorCodigoIndicacao(cod);
+        if (registroEncontrado) {
+          setRegistro(registroEncontrado);
+          setVendedor(registroEncontrado.Vendedor);
+  
+          const listaIndicacoes = registroEncontrado?.Json_Indicações?.indicacoes || [];
+          const novoValor = (registroEncontrado.ContadorCliques || 0) + 1;
+  
+          await atualizarIndicacoes(registroEncontrado.Id, {
+            Json_Indicações: {
+              indicacoes: listaIndicacoes
+            },
+            ContadorCliques: novoValor
+          });
         } else {
           setMensagem('Código inválido ou não encontrado.');
         }
       };
-
+  
       buscar();
     } else {
       setMensagem('Nenhum código informado na URL.');
     }
   }, []);
+  
+  
+  
 
   const handleEnviar = async () => {
     if (!indicador || !telefoneIndicador || !nomeIndicado || !telefoneIndicado) {
@@ -52,6 +66,7 @@ const FormularioIndicacao = () => {
     const novaIndicacao = {
       vendedor,
       indicador,
+      telefoneIndicador, // 👈 Isso precisa estar presente
       nome: nomeIndicado,
       telefone: telefoneIndicado,
       status: 'pendente',
@@ -70,61 +85,68 @@ const FormularioIndicacao = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">📨 Formulário de Indicação</h1>
-
+    <div className={styles.container}>
+      <h1 className={styles.titulo}>📨 Formulário de Indicação</h1>
+  
       {mensagem && (
-        <p className={`mb-4 font-semibold ${mensagem.startsWith('✅') ? 'text-green-700' : 'text-red-600'}`}>
+        <p className={`${styles.mensagem} ${mensagem.startsWith('✅') ? styles.sucesso : styles.erro}`}>
           {mensagem}
         </p>
       )}
-
+  
       {vendedor && (
         <p className="mb-4 text-gray-700">
           Vendedor responsável: <strong>{vendedor}</strong>
         </p>
       )}
-
-      <div className="mb-3">
-        <label className="block text-sm font-medium">Seu nome</label>
-        <input
-          className="w-full border px-3 py-2 rounded"
-          value={indicador}
-          onChange={(e) => setIndicador(e.target.value)}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="block text-sm font-medium">Seu telefone</label>
-        <input
-          className="w-full border px-3 py-2 rounded"
+  
+      <label className={styles.label}>Seu nome</label>
+      <input className={styles.input} value={indicador} onChange={(e) => setIndicador(e.target.value)} />
+  
+      <label className={styles.label}>Seu telefone</label>
+      <input
+          className={styles.input}
           value={telefoneIndicador}
-          onChange={(e) => setTelefoneIndicador(e.target.value)}
-        />
-      </div>
+          onChange={(e) => {
+            let valor = e.target.value;
 
-      <div className="mb-3">
-        <label className="block text-sm font-medium">Nome do indicado</label>
-        <input
-          className="w-full border px-3 py-2 rounded"
-          value={nomeIndicado}
-          onChange={(e) => setNomeIndicado(e.target.value)}
-        />
-      </div>
+            // Remove tudo que não for número
+            valor = valor.replace(/\D/g, "");
 
-      <div className="mb-3">
-        <label className="block text-sm font-medium">Telefone do indicado</label>
-        <input
-          className="w-full border px-3 py-2 rounded"
+            // Garante que começa com 55
+            if (!valor.startsWith("55")) {
+              valor = "55" + valor;
+            }
+
+            // Limita no máximo a 13 dígitos (ex: 55 + DDD + 9 dígitos)
+            valor = valor.slice(0, 13);
+
+            setTelefoneIndicador("+" + valor);
+          }}
+        />
+
+  
+      <label className={styles.label}>Nome do indicado</label>
+      <input className={styles.input} value={nomeIndicado} onChange={(e) => setNomeIndicado(e.target.value)} />
+  
+      <label className={styles.label}>Telefone do indicado</label>
+      <input
+          className={styles.input}
           value={telefoneIndicado}
-          onChange={(e) => setTelefoneIndicado(e.target.value)}
-        />
-      </div>
+          onChange={(e) => {
+            let valor = e.target.value;
 
-      <button
-        className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        onClick={handleEnviar}
-      >
+            valor = valor.replace(/\D/g, ""); // remove não números
+            if (!valor.startsWith("55")) {
+              valor = "55" + valor;
+            }
+            valor = valor.slice(0, 13); // limita o tamanho
+
+            setTelefoneIndicado("+" + valor);
+          }}
+        />
+  
+      <button className={styles.botao} onClick={handleEnviar}>
         Enviar Indicação
       </button>
     </div>

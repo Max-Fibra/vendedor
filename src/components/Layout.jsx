@@ -65,6 +65,13 @@ const Layout = ({
               >
                 ⚙️ Configurações
               </Link>
+              <Link
+              to="/admin/verificar-indicacoes"
+              onClick={fecharMenu}
+              className={isActive("/admin/verificar-indicacoes") ? styles.ativo : ""}
+            >
+              🧩 Verificar Indicações
+            </Link>
             </>
           ) : (
             <>
@@ -90,12 +97,12 @@ const Layout = ({
                 ⚙️ Configuração
               </Link>
               <Link
-              to="#"
-              onClick={(e) => e.preventDefault()}
-              className={`${styles.desabilitado}`}
-              style={{ pointerEvents: 'none', opacity: 0.5 }}
-            >
-              💡 Indicações - Desenvolvimento
+                to="/indicacoes"
+                onClick={fecharMenu}
+                className={isActive("/indicacoes") ? styles.ativo : ""}
+              >
+            
+              💡 Indicações
             </Link>
 
 
