@@ -43,20 +43,20 @@ const IndicacoesPage = () => {
 
   const gerarLink = async () => {
     if (!vendedor) return;
-
+  
     setLoading(true);
     const novoCodigo = `${vendedor.nome.toLowerCase().replace(/\s/g, '')}-${Math.random().toString(36).substring(2, 8)}`;
-
+  
     await criarOuAtualizarRegistroIndicacao(vendedor.nome, novoCodigo);
-    setCodigoLink(`${window.location.origin}/#/indicar?codigo=${codigo}`)
-
-
+    setCodigoLink(`${window.location.origin}/#/indicar?codigo=${novoCodigo}`);
+  
     // Atualiza o registro após criar novo código
     const registroCompleto = await buscarRegistroPorCodigoIndicacao(novoCodigo);
     setRegistro(registroCompleto);
-
+  
     setLoading(false);
   };
+  
 
   useEffect(() => {
     if (!vendedor) return;
