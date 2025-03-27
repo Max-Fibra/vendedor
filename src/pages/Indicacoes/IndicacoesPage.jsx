@@ -47,7 +47,12 @@ const IndicacoesPage = () => {
     setLoading(true);
     const novoCodigo = `${vendedor.nome.toLowerCase().replace(/\s/g, '')}-${Math.random().toString(36).substring(2, 8)}`;
   
-    await criarOuAtualizarRegistroIndicacao(vendedor.nome, novoCodigo);
+    await criarOuAtualizarRegistroIndicacao(vendedor.nome, novoCodigo, vendedor.email);
+    //console.log("🔁 Criando registro com:", {
+      //nome: vendedor.nome,
+      //email: vendedor.email
+    //});
+    
     setCodigoLink(`${window.location.origin}/#/indicar?codigo=${novoCodigo}`);
   
     // Atualiza o registro após criar novo código

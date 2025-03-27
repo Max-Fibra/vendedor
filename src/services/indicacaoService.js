@@ -50,7 +50,7 @@ export const atualizarIndicacoes = async (recordId, dados) => {
     throw new Error('❌ Dados inválidos enviados para atualizarIndicacoes');
   }
 
-  console.log('🚀 Payload enviado para PATCH:', payload);
+  //console.log('🚀 Payload enviado para PATCH:', payload);
 
   const res = await api.patch(`/tables/${TABLE_ID}/records`, payload);
   return res.data;
@@ -60,12 +60,13 @@ export const atualizarIndicacoes = async (recordId, dados) => {
 
 
 // Criar ou atualizar o registro do vendedor
-export const criarOuAtualizarRegistroIndicacao = async (vendedor, idUnic) => {
+export const criarOuAtualizarRegistroIndicacao = async (vendedor, idUnic, emailVendedor) => {
   const registroExistente = await buscarVendedorPorNome(vendedor);
 
   const payload = {
     Vendedor: vendedor,
     UnicID: idUnic,
+    emailVendedor, // 👈 novo campo salvo diretamente
     Json_Indicações: registroExistente?.Json_Indicações || { indicacoes: [] },
   };
 

@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { buscarRegistroPorCodigoIndicacao, atualizarIndicacoes } from '../../services/indicacaoService';
 import styles from './FormularioIndicacoes.module.css'; // 👈 importa o CSS module
+import { enviarStatusVenda, notificarIndicacao } from '../../services/notificacaoService';
+
+
+
 
 
 const FormularioIndicacao = () => {
@@ -13,6 +17,13 @@ const FormularioIndicacao = () => {
   const [nomeIndicado, setNomeIndicado] = useState('');
   const [telefoneIndicado, setTelefoneIndicado] = useState('');
   const [mensagem, setMensagem] = useState('');
+  const emailVendedor =
+  registro?.email ||
+  registro?.emailVendedor ||
+  registro?.Vendedor?.email;
+
+
+
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -25,6 +36,7 @@ const FormularioIndicacao = () => {
   
       const buscar = async () => {
         const registroEncontrado = await buscarRegistroPorCodigoIndicacao(cod);
+        
         if (registroEncontrado) {
           setRegistro(registroEncontrado);
           setVendedor(registroEncontrado.Vendedor);
@@ -57,32 +69,67 @@ const FormularioIndicacao = () => {
       setMensagem('Preencha todos os campos.');
       return;
     }
-
+  
     if (!registro) {
       setMensagem('Erro: registro do vendedor não carregado.');
       return;
     }
-
+  
+    // 🔎 Log completo do registro para debugar a estrutura
+    console.log("🔎 Registro encontrado:", registro);
+  
+    // ⛑️ Tentativa defensiva de capturar o email do vendedor, testando várias possibilidades
+    const emailVendedor =
+      registro?.email ||
+      registro?.emailVendedor ||
+      registro?.Vendedor?.email;
+  
+    // Envia a notificação via WhatsApp usando o endpoint correto
+    if (emailVendedor && nomeIndicado && indicador) {
+      try {
+        await notificarIndicacao(emailVendedor, indicador, nomeIndicado, telefoneIndicado);
+      } catch (err) {
+        console.error("Erro ao notificar indicação:", err);
+      }
+    } else {
+      console.warn("⚠️ Dados incompletos para notificação:", {
+        emailVendedor,
+        nomeIndicado,
+        indicador,
+      });
+    }
+  
+    // Salva a nova indicação no backend
     const novaIndicacao = {
       vendedor,
       indicador,
-      telefoneIndicador, // 👈 Isso precisa estar presente
+      telefoneIndicador,
       nome: nomeIndicado,
       telefone: telefoneIndicado,
       status: 'pendente',
       data: new Date().toLocaleDateString('pt-BR'),
     };
-
+  
     const listaAtual = registro?.Json_Indicações?.indicacoes || [];
     const novaLista = [...listaAtual, novaIndicacao];
-
-    await atualizarIndicacoes(registro.Id, novaLista);
+  
+    await atualizarIndicacoes(registro.Id, {
+      Json_Indicações: {
+        indicacoes: novaLista
+      }
+    });
+  
+    // Limpa os campos e mostra a mensagem
     setMensagem('✅ Indicação enviada com sucesso!');
     setIndicador('');
     setTelefoneIndicador('');
     setNomeIndicado('');
     setTelefoneIndicado('');
   };
+  
+  
+  
+  
 
   return (
     <div className={styles.container}>

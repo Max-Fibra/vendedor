@@ -20,4 +20,22 @@ export const enviarStatusVenda = async (email, status, cliente, plano, protocolo
       throw error;
     }
   };
-  
+
+
+
+// notificacaoService.js
+export const notificarIndicacao = async (email, indicador, nomeIndicado, telefoneIndicado) => {
+  try {
+    const response = await axios.post(`${API_URL}/notificar-indicacao`, {
+      email,
+      indicador,
+      nomeIndicado,
+      telefoneIndicado,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ Erro ao notificar indicação:", error.response?.data || error.message);
+    throw error;
+  }
+};
+

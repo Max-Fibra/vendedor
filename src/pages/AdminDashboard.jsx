@@ -245,7 +245,7 @@ const AdminDashboard = () => {
             });
       
             await atualizarIndicacoes(registro.Id, novasIndicacoes);
-            console.log(`✅ Indicação com protocolo ${protocolo} atualizada para ${novoStatus}`);
+            //console.log(`✅ Indicação com protocolo ${protocolo} atualizada para ${novoStatus}`);
             break;
           }
         }
