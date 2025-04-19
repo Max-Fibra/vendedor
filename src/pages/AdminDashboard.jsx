@@ -183,7 +183,7 @@ const AdminDashboard = () => {
                 venda.cpf,
                 venda.protocolo,
                 venda.dataHora,
-                `R$ ${calcularComissao(status).toFixed(2).replace(".", ",")}`,
+                `R$ ${calcularComissao(status, venda.classificacao, valoresComissao).toFixed(2).replace(".", ",")}`,
             ];
         });
         autoTable(doc, {
@@ -203,7 +203,7 @@ const AdminDashboard = () => {
                 CPF: venda.cpf,
                 Protocolo: venda.protocolo,
                 Data: venda.dataHora,
-                Comissão: `R$ ${calcularComissao(status).toFixed(2).replace(".", ",")}`,
+                Comissão: `R$ ${calcularComissao(status, venda.classificacao, valoresComissao).toFixed(2).replace(".", ",")}`,
             };
         });
         const planilha = XLSX.utils.json_to_sheet(dados);
